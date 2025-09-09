@@ -12,6 +12,7 @@ urlpatterns = [
     path('place-order/', views.place_order, name='place_order'),
     path('add-to-cart/', views.add_to_cart, name='add_to_cart'),
     path('password-reset/', views.password_reset_view, name='password_reset'),
+    path('ordercomp/', views.ordercomp, name='ordercomp'),
  
     
     

@@ -22,7 +22,8 @@ def product_detail(request, ):
 
 def place_order(request):
     return render(request,'place.html') 
-
+def ordercomp(request):
+    return render(request,'order_complete.html') 
 def add_to_cart(request, ):
     return render(request, 'cart.html')
 def password_reset_view(request):
