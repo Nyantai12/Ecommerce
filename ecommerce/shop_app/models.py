@@ -1,11 +1,34 @@
 from django.db import models
+from django.utils import timezone
+
+class Category(models.Model):
+    category_name = models.CharField(max_length=50, unique=True)
+    slug = models.CharField(max_length=100, unique=True)
+    description = models.TextField(max_length=255, blank=True)
+    image = models.ImageField(upload_to='photos/categories', blank=True)
+
+    def __str__(self):
+        return self.category_name
+
+    class Meta:
+        db_table = 'category'  # хүснэгтийн нэрийг өөрчилж байна
 
 
 class Product(models.Model):
-    name = models.CharField(max_length=200)
-    description = models.TextField()
-    price = models.DecimalField(max_digits=8, decimal_places=2)
-    image = models.ImageField(upload_to='products/', blank=True, null=True)
+    product_name = models.CharField(max_length=200, unique=True)
+    slug = models.SlugField(max_length=200, unique=True)
+    description = models.TextField(max_length=500, blank=True)
+    price = models.IntegerField()
+    images = models.ImageField(upload_to='photos/products', blank=True)
+    stock = models.IntegerField()
+    is_available = models.BooleanField(default=True)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True, blank=True)
+    created_date = models.DateTimeField(auto_now_add=True)
+    modified_date = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.name
+        return self.product_name
+
+    class Meta:
+        db_table = 'product'  # хүснэгтийн нэрийг өөрчилж байна
+
