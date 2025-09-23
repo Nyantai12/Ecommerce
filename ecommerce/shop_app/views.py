@@ -1,20 +1,41 @@
+from dbm import sqlite3
+import os
+from django.conf import settings
 from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, render
 from .models import Category, Product  # <- Үүнийг заавал нэмнэ
+import sqlite3 as sql
+
+# def index(request):
+#     categories = Category.objects.all()  
+#     popular_products = Product.objects.all()[:8]  
+#     context = {
+#         'categories': categories,
+#         'popular_products': popular_products
+#     }
+#     return render(request, 'index.html', context)
 
 def index(request):
-    categories = Category.objects.all()  # Admin-д байгаа бүх category
-    popular_products = Product.objects.all()[:8]  # Жишээ: хамгийн эхний 8 product
+    categories = Category.objects.raw("SELECT * FROM category")
+    popular_products = Product.objects.raw("SELECT * FROM product LIMIT 8")
     context = {
         'categories': categories,
         'popular_products': popular_products
     }
     return render(request, 'index.html', context)
+
+
+
 def cart_view(request):
     return render(request, 'cart.html')
 
 def store(request):
-    return render(request, 'store.html', )
+    popular_products = Product.objects.all()  # бүх бараа авах
+    context = {
+        'popular_products': popular_products
+    }
+    return render(request, 'store.html', context)
+
 def signin(request):
     return render(request, 'signin.html')
 
