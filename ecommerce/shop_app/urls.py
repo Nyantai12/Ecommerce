@@ -15,8 +15,4 @@ urlpatterns = [
     path('ordercomp/', views.ordercomp, name='ordercomp'),
     path('category/<int:id>/', views.category_products, name='category_products'),
     
- 
-    
-    
-
 ]
