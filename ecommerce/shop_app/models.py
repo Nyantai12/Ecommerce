@@ -11,7 +11,7 @@ class Category(models.Model):
         return self.category_name
 
     class Meta:
-        db_table = 'category'  # хүснэгтийн нэрийг өөрчилж байна
+        db_table = 'category'  
 
 
 class Product(models.Model):

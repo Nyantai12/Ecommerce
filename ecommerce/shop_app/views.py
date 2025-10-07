@@ -42,6 +42,17 @@ def store(request):
     }
     return render(request, 'store.html', context)
 
+def category_products(request, slug):
+    categories = Category.objects.all()
+    category = get_object_or_404(Category, slug=slug)
+    popular_products = Product.objects.filter(category=category)
+    return render(request, 'store.html', {
+        'categories': categories,
+        'popular_products': popular_products,
+        'selected_category': category
+    })  
+
+
 
 def signin(request):
     return render(request, 'signin.html')
@@ -61,8 +72,3 @@ def add_to_cart(request, ):
     return render(request, 'cart.html')
 def password_reset_view(request):
     return render(request, 'password_reset.html')
-
-def category_products(request, id):
-    category = get_object_or_404(Category, id=id)
-    products = Product.objects.filter(category=category)
-    return render(request, 'category_products.html', {'category': category, 'products': products})

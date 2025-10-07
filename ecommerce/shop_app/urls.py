@@ -13,6 +13,6 @@ urlpatterns = [
     path('add-to-cart/', views.add_to_cart, name='add_to_cart'),
     path('password-reset/', views.password_reset_view, name='password_reset'),
     path('ordercomp/', views.ordercomp, name='ordercomp'),
-    path('category/<int:id>/', views.category_products, name='category_products'),
+    path('category/<slug:slug>/', views.category_products, name='category_products'),
     
 ]

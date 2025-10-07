@@ -80,8 +80,11 @@
                         </button>
                         <div class="dropdown-menu">
                             {% for category in categories %}
-                                <a class="dropdown-item" href="{% url 'category_products' category.id %}">{{ category.category_name }}</a>
+                                <a class="dropdown-item" href="{% url 'category_products' category.slug%}">
+                                {{ category.category_name | upper }}
+                                </a>
                             {% endfor %}
+                            
                         </div>
                     </div>
                 </div>
