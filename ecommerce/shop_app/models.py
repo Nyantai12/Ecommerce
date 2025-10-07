@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from django.urls import reverse
 
 class Category(models.Model):
     category_name = models.CharField(max_length=50, unique=True)
@@ -12,6 +13,8 @@ class Category(models.Model):
 
     class Meta:
         db_table = 'category'  
+    def get_url(self):
+        return reverse('store', args=[self.slug])
 
 
 class Product(models.Model):
@@ -30,5 +33,14 @@ class Product(models.Model):
         return self.product_name
 
     class Meta:
-        db_table = 'product'  # хүснэгтийн нэрийг өөрчилж байна
+        db_table = 'product'  
+    
+    def get_url(self):
+        return reverse('product_detail', args=[self.category.slug, self.slug])
 
+
+
+
+
+
+       

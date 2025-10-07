@@ -5,52 +5,35 @@
 
 {% block content %}
 
-
-<body>
-
-<!-- ========================= SECTION PAGETOP ========================= -->
 <section class="section-pagetop bg">
-<div class="container">
-  <h2 class="title-page">Our Store</h2>
-</div>
+  <div class="container">
+    <h2 class="title-page">Our Store</h2>
+  </div>
 </section>
 
-<!-- ========================= SECTION CONTENT ========================= -->
 <section class="section-content padding-y">
 <div class="container">
 <div class="row">
 
   <!-- Sidebar / Filters -->
   <aside class="col-md-3">
-    <div class="card">
+    <div class="card mb-3">
       <article class="filter-group">
         <header class="card-header">
           <h6 class="title">Categories</h6>
         </header>
-        <!-- <div class="card-body">
-          <ul class="list-menu">
-            <li><a href="#">People</a></li>
-            <li><a href="#">Watches</a></li>
-            <li><a href="#">Cinema</a></li>
-            <li><a href="#">Clothes</a></li>
-            <li><a href="#">Home items</a></li>
-            <li><a href="#">Animals</a></li>    
-          </ul>
-        </div> -->
-        <ul class="list-menu" style="margin-left: 20px;">
-        {% for category in categories %}
-          <li>
-            <a href="{% url 'category_products' category.slug%}">
-              {{ category.category_name | upper }}
-            </a>
-          </li>
-        {% endfor %}
-      </ul>
-
-
+        <ul class="list-menu ps-3" style="margin-left: 20px;">
+          {% for category in categories %}
+            <li>
+              <a href="{% url 'category_products' category.slug %}">
+                {{ category.category_name|upper }}
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
       </article>
 
-      <article class="filter-group">
+      <article class="filter-group mt-3">
         <header class="card-header">
           <h6 class="title">Price range</h6>
         </header>
@@ -62,7 +45,7 @@
             <option>$200</option>
             <option>$500</option>
           </select>
-          <button class="btn btn-block btn-primary">Apply</button>
+          <button class="btn btn-primary w-100">Apply</button>
         </div>
       </article>
     </div>
@@ -70,31 +53,41 @@
 
   <!-- Main content / Products -->
   <main class="col-md-9">
-    <header class="section-heading">
-    <a href="{% url 'index' %}" class="btn btn-outline-primary float-right">See all</a>
-    <h5 class="section-title">Products ( {{ popular_products|length }} )</h5>
-   
-</header>
+    <header class="section-heading mb-3">
+      <a href="{% url 'index' %}" class="btn btn-outline-primary float-end">See all</a>
+      <h5 class="section-title">Products ( {{ popular_products|length }} )</h5>
+    </header>
+
     <div class="row g-3">
-    {% for product in popular_products %}
-    <div class="col-6 col-md-3">
+      {% for product in popular_products %}
+      <div class="col-6 col-md-3">
+        <a href="{% url 'product_detail' product.category.slug product.slug %}">
         <div class="card h-100 card-product-grid">
-            <a href="{% url 'product_detail' product.id %}" class="img-wrap">
-                {% if product.images %}
-                    <img src="{{ product.images.url }}" class="card-img-top" alt="{{ product.product_name }}">
-                {% else %}
-                    <img src="{% static 'images/default.png' %}" class="card-img-top" alt="No Image">
-                {% endif %}
-            </a>
-            <div class="card-body d-flex flex-column">
-                <a href="{% url 'product_detail' product.id %}" class="card-title text-truncate mb-2">{{ product.product_name }}</a>
-                <div class="mt-auto fw-bold">{{ product.price|floatformat:0 }}₮</div>
-            </div>
-        </div>
-    </div>
-    {% endfor %}
+          <a href="{% url 'product_detail' product.category.slug product.slug %}" class="img-wrap">
+            {% if product.images %}
+              <img src="{{ product.images.url }}" class="card-img-top" alt="{{ product.product_name }}">
+            {% else %}
+              <img src="{% static 'images/default.png' %}" class="card-img-top" alt="No Image">
+            {% endif %}
+          </a>
+          <div class="card-body d-flex flex-column">
+    <a href="{% url 'product_detail' product.category.slug product.slug %}" class="card-title text-truncate mb-2">
+        {{ product.product_name }}
+    </a>
+    <div class="mt-auto fw-bold">{{ product.price|floatformat:0 }}₮</div>
+
+    {% if product.stock > 0 %}
+        <a href="{% url 'add_to_cart' %}" class="btn btn-block btn-primary">Add to cart</a>
+    {% else %}
+        <button class="btn btn-block btn-secondary" disabled>Out of Stock</button>
+    {% endif %}
 </div>
 
+        </div>
+        </a>
+      </div>
+      {% endfor %}
+    </div>
 
     <!-- Pagination -->
     <nav class="mt-4">
@@ -105,12 +98,11 @@
         <li class="page-item"><a class="page-link" href="#">Next</a></li>
       </ul>
     </nav>
+
   </main>
 
 </div>
 </div>
 </section>
-
-</body>
 
 {% endblock %}

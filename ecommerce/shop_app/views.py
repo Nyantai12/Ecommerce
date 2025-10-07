@@ -60,9 +60,10 @@ def signin(request):
 def register(request):
     return render(request, 'register.html')
 
-def product_detail(request, id):
-    product = Product.objects.get(id=id)
-    return render(request, 'product_detail.html', {'product': product})
+def product_detail(request, cat_slug, pro_slug):
+    product = get_object_or_404(Product, category__slug=cat_slug, slug=pro_slug)
+    return render(request, 'product-detail.html', {'product': product})
+
 
 def place_order(request):
     return render(request,'place.html') 
