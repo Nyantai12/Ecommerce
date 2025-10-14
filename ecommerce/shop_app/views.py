@@ -36,9 +36,12 @@ def cart_view(request):
 def store(request):
     categories = Category.objects.all()  
     popular_products = Product.objects.all()  
+    paginator = Paginator(popular_products, 4)
+    page_number = request.GET.get('page')
+    products = paginator.get_page(page_number)
     context = {
         'categories': categories,
-        'popular_products': popular_products
+        'popular_products': products ,
     }
     return render(request, 'store.html', context)
 
