@@ -92,19 +92,16 @@
     <!-- Pagination -->
     <nav class="mt-4">
   <ul class="pagination justify-content-center">
-
-    <!-- Previous -->
     {% if popular_products.has_previous %}
       <li class="page-item">
-        <a class="page-link" href="?page={{ popular_products.previous_page_number }}"><</a>
+        <a class="page-link" href="?page={{ popular_products.previous_page_number }}">Previous</a>
       </li>
     {% else %}
       <li class="page-item disabled">
-        <span class="page-link"><</span>
+        <span class="page-link">Previous</span>
       </li>
     {% endif %}
 
-    <!-- Хуудасны дугаарууд -->
     {% for num in popular_products.paginator.page_range %}
       {% if popular_products.number == num %}
         <li class="page-item active">
@@ -117,14 +114,14 @@
       {% endif %}
     {% endfor %}
 
-    <!-- Next -->
+    
     {% if popular_products.has_next %}
       <li class="page-item">
-        <a class="page-link" href="?page={{ popular_products.next_page_number }}">></a>
+        <a class="page-link" href="?page={{ popular_products.next_page_number }}">Next</a>
       </li>
     {% else %}
       <li class="page-item disabled">
-        <span class="page-link">></span>
+        <span class="page-link">Next</span>
       </li>
     {% endif %}
 

@@ -45,6 +45,12 @@ def store(request):
     }
     return render(request, 'store.html', context)
 
+
+
+
+
+
+
 def category_products(request, slug):
     categories = Category.objects.all()
     category = get_object_or_404(Category, slug=slug)
