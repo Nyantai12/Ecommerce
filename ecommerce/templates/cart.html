@@ -1,104 +1,105 @@
 {% extends "base.html" %}
 {% load static %}
 {% block content %}
-<!-- ============================ COMPONENT 1 ================================= -->
-<div class="row">
-	<aside class="col-lg-9">
-		<div class="card">
-			{% if cart_items %}
-			<table class="table table-borderless table-shopping-cart">
-				<thead class="text-muted">
-					<tr class="small text-uppercase">
-						<th scope="col">Product</th>
-						<th scope="col" width="120">Quantity</th>
-						<th scope="col" width="120">Price</th>
-						<th scope="col" class="text-right" width="200"> </th>
-					</tr>
-				</thead>
-				<tbody>
-					{% for item in cart_items %}
-					<tr>
-						<td>
-							<figure class="itemside align-items-center">
-								<div class="aside">
-									<img src="{{ item.product.images.url }}" class="img-sm">
-								</div>
-								<figcaption class="info">
-									<a href="{{ item.product.get_url }}" class="title text-dark">
-										{{ item.product.product_name }}
-									</a>
-									<p class="text-muted small">
-										Category: {{ item.product.category.category_name }}
-									</p>
-								</figcaption>
-							</figure>
-						</td>
+<div class="row min-vh-80 d-flex justify-content-center align-items-center">
+	{% if cart_items %}
+		<!-- CART ITEMS SECTION -->
+		<aside class="col-lg-9">
+			<div class="card">
+				<table class="table table-borderless table-shopping-cart">
+					<thead class="text-muted">
+						<tr class="small text-uppercase">
+							<th scope="col">Product</th>
+							<th scope="col" width="120">Quantity</th>
+							<th scope="col" width="120">Price</th>
+							<th scope="col" class="text-right" width="200"></th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for item in cart_items %}
+						<tr>
+							<td>
+								<figure class="itemside align-items-center">
+									<div class="aside">
+										<img src="{{ item.product.images.url }}" class="img-sm" alt="product image">
+									</div>
+									<figcaption class="info">
+										<a href="{{ item.product.get_url }}" class="title text-dark">
+											{{ item.product.product_name }}
+										</a>
+										<p class="text-muted small">
+											Category: {{ item.product.category.category_name }}
+										</p>
+									</figcaption>
+								</figure>
+							</td>
 
-						<td>
-							<div class="col">
+							<td>
 								<div class="input-group input-spinner">
 									<div class="input-group-prepend">
 										<a href="{% url 'reduce_cart_item' item.product.id %}" class="btn btn-light btn-minus">
 											<i class="fa fa-minus"></i>
 										</a>
 									</div>
-
 									<input type="text" class="form-control" value="{{ item.quantity }}" readonly>
-									{%if item.quantity < item.product.stock%}
+									{% if item.quantity < item.product.stock %}
 									<div class="input-group-append">
 										<a href="{% url 'add_cart' item.product.id %}" class="btn btn-light btn-plus">
 											<i class="fa fa-plus"></i>
 										</a>
 									</div>
-									{%endif%}
+									{% endif %}
 								</div>
-							</div>
-						</td>
+							</td>
 
-						<td>
-							<div class="price-wrap">
-								<var class="price">${{ item.sub_total }}</var>
-								<small class="text-muted"> ${{ item.product.price }} each </small>
-							</div>
-						</td>
+							<td>
+								
+									<var class="price">{{ item.product.price }}₮ </var>
+									<!-- <small class="text-muted"> ${{ item.product.price }} each </small> -->
+								
+							</td>
 
-						<td class="text-right">
-							<a href="{% url 'remove_cart_item' item.product.id %}" class="btn btn-danger"> Remove </a>
-						</td>
-					</tr>
-					{% endfor %}
-				</tbody>
-			</table>
-			{% else %}
-			<h4 class="text-center p-4">Your cart is empty 😢</h4>
-			{% endif %}
-		</div>
-	</aside>
-
-	<aside class="col-lg-3">
-		<div class="card">
-			<div class="card-body">
-				<dl class="dlist-align">
-					<dt>Total price:</dt>
-					<dd class="text-right">${{ total }}</dd>
-				</dl>
-				<dl class="dlist-align">
-					<dt>Tax:</dt>
-					<dd class="text-right">${{ tax }}</dd>
-				</dl>
-				<dl class="dlist-align">
-					<dt>Total:</dt>
-					<dd class="text-right text-dark b"><strong>${{ grand_total }}</strong></dd>
-				</dl>
-				<hr>
-				<p class="text-center mb-3">
-					<img src="{% static 'images/misc/payments.png' %}" height="26">
-				</p>
-				<a href="" class="btn btn-primary btn-block"> Checkout </a>
-				<a href="{% url 'store'  %}" class="btn btn-light btn-block">Continue Shopping</a>
+							<td class="text-right">
+								<a href="{% url 'remove_cart_item' item.product.id %}" class="btn btn-danger">Remove</a>
+							</td>
+						</tr>
+						{% endfor %}
+					</tbody>
+				</table>
 			</div>
+		</aside>
+
+		<!-- RIGHT SIDE TOTAL -->
+		<aside class="col-lg-3">
+			<div class="card">
+				<div class="card-body">
+					<dl class="dlist-align">
+						<dt>Total price:</dt>
+						<dd class="text-right">{{ total }}₮</dd>
+					</dl>
+					<dl class="dlist-align">
+						<dt>Tax:</dt>
+						<dd class="text-right">{{ tax }}₮</dd>
+					</dl>
+					<dl class="dlist-align">
+						<dt>Total:</dt>
+						<dd class="text-right text-dark b"><strong>{{ grand_total }}₮</strong></dd>
+					</dl>
+					<hr>
+					<p class="text-center mb-3">
+						<img src="{% static 'images/misc/payments.png' %}" height="26">
+					</p>
+					<a href="{% url 'place_order' %}" class="btn btn-primary btn-block">Checkout</a>
+				</div>
+			</div>
+		</aside>
+
+	{% else %}
+		<!-- EMPTY CART SECTION -->
+		<div class="col-lg-8 text-center p-5">
+			<h4>Your cart is empty</h4>
+			<a href="{% url 'store' %}" class="btn btn-primary mt-3">Continue shopping</a>
 		</div>
-	</aside>
+	{% endif %}
 </div>
-<!-- ============================ COMPONENT 1 END .// ================================= -->
 {% endblock %}

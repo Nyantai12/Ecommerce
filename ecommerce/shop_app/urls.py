@@ -12,5 +12,7 @@ urlpatterns = [
     path('password-reset/', views.password_reset_view, name='password_reset'),
     path('ordercomp/', views.ordercomp, name='ordercomp'),
     path('store/<slug:slug>/', views.category_products, name='category_products'),
+    path('search/', views.search, name='search'),
+
     
 ]

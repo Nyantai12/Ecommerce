@@ -1,8 +1,14 @@
 from dbm import sqlite3
 import os
+from django.db.models import Q
 from django.conf import settings
 from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, render
+
+from cart_app.models import CartItem
+from cart_app.views import _cart_id
+
+
 from .models import Category, Product  # <- Үүнийг заавал нэмнэ
 import sqlite3 as sql
 
@@ -27,24 +33,63 @@ def index(request):
 
 
 
+def search(request):
+    keyword = request.GET.get('keyword', '').strip()
+    products = Product.objects.none()
+    count = 0
+
+    if keyword:
+        products = Product.objects.filter(
+            Q(product_name__icontains=keyword) |
+            Q(description__icontains=keyword)
+        )
+        count = products.count()
+    paginator = Paginator(products, 4)  
+    page_number = request.GET.get('page')
+    products_page = paginator.get_page(page_number)
+    categories = Category.objects.all()  
+    context = {
+        'popular_products': products_page,  
+        'categories': categories,
+        'count': count,
+        'keyword': keyword,
+    }
+
+    return render(request, "store.html", context)
+
+
+
+
 
 def cart_view(request):
     return render(request, 'cart.html')
 
 
-
 def store(request):
-    categories = Category.objects.all()  
-    popular_products = Product.objects.all()  
-    paginator = Paginator(popular_products, 4)
+    products = Product.objects.all()
+    categories = Category.objects.all()
+    category_ids = request.GET.getlist('category')
+    min_price = request.GET.get('min_price')
+    max_price = request.GET.get('max_price')
+    if category_ids:
+        products = products.filter(category__id__in=category_ids)
+    if min_price:
+        products = products.filter(price__gte=min_price)
+    if max_price:
+        products = products.filter(price__lte=max_price)
+
+    paginator = Paginator(products, 4)
     page_number = request.GET.get('page')
-    products = paginator.get_page(page_number)
+    products_page = paginator.get_page(page_number)
+
     context = {
+        'popular_products': products_page,
         'categories': categories,
-        'popular_products': products ,
+        'selected_categories': category_ids,
+        'selected_min_price': min_price,
+        'selected_max_price': max_price,
     }
     return render(request, 'store.html', context)
-
 
 
 
@@ -71,7 +116,9 @@ def register(request):
 
 def product_detail(request, cat_slug, pro_slug):
     product = get_object_or_404(Product, category__slug=cat_slug, slug=pro_slug)
-    return render(request, 'product-detail.html', {'product': product})
+    in_cart = CartItem.objects.filter(cart__cart_id=_cart_id(request), product=product).exists()
+    return render(request, 'product-detail.html', {'product': product, 'in_cart': in_cart})
+
 
 
 def place_order(request):

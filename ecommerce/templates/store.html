@@ -15,75 +15,96 @@
 <div class="container">
 <div class="row">
 
-  <!-- Sidebar / Filters -->
+  <!-- ==================== SIDEBAR ==================== -->
   <aside class="col-md-3">
     <div class="card mb-3">
-      <article class="filter-group">
-        <header class="card-header">
-          <h6 class="title">Categories</h6>
-        </header>
-        <ul class="list-menu ps-3" style="margin-left: 20px;">
-          {% for category in categories %}
-            <li>
-              <a href="{% url 'category_products' category.slug %}">
-                {{ category.category_name|upper }}
-              </a>
-            </li>
-          {% endfor %}
-        </ul>
-      </article>
+      <form method="GET" action="{% url 'store' %}">
 
-      <article class="filter-group mt-3">
-        <header class="card-header">
-          <h6 class="title">Price range</h6>
-        </header>
-        <div class="card-body">
-          <select class="form-control mb-2">
-            <option>$0</option>
-            <option>$50</option>
-            <option>$100</option>
-            <option>$200</option>
-            <option>$500</option>
-          </select>
-          <button class="btn btn-primary w-100">Apply</button>
-        </div>
-      </article>
+        <!-- Categories -->
+        <article class="filter-group">
+          <header class="card-header">
+            <h6 class="title">Categories</h6>
+          </header>
+          <ul class="list-menu ps-3" style="margin-left: 20px;">
+            {% for category in categories %}
+            <li>
+              <input type="checkbox" name="category" value="{{ category.id }}"
+                     {% if category.id|stringformat:"s" in selected_categories %}checked{% endif %}>
+              {{ category.category_name }}
+            </li>
+            {% endfor %}
+          </ul>
+        </article>
+
+      
+
+        <!-- Price range -->
+        <article class="filter-group mt-3">
+          <header class="card-header"><h6 class="title">Price range</h6></header>
+          <div class="card-body">
+
+            <div class="card-body">
+
+            <label>Min price (₮):</label>
+            <input type="number" name="min_price" class="form-control mb-2"
+                   value="{{ selected_min_price|default_if_none:'' }}" placeholder="₮0">
+
+            <label>Max price (₮):</label>
+            <input type="number" name="max_price" class="form-control mb-2"
+                   value="{{ selected_max_price|default_if_none:'' }}" placeholder="₮10000000">
+
+          </div>
+
+          </div>
+        </article>
+
+        <button type="submit" class="btn btn-primary w-100 mt-2">Apply</button>
+      </form>
     </div>
   </aside>
+  <!-- ==================== END SIDEBAR ==================== -->
 
-  <!-- Main content / Products -->
+
+  <!-- ==================== MAIN CONTENT ==================== -->
   <main class="col-md-9">
     <header class="section-heading mb-3">
-      <!-- <a href="{% url 'index' %}" class="btn btn-outline-primary float-end">See all</a> -->
-      <h5 class="section-title">Products ( {{ popular_products|length }} )</h5>
-    </header>
+  {% if keyword %}
+    <h5 class="section-title">
+      “{{ keyword }}” хайлтаар <strong>{{ count }}</strong> бараа олдлоо
+    </h5>
+  {% else %}
+    <h5 class="section-title">
+      Бүх бараа ({{ popular_products.paginator.count }})
+    </h5>
+  {% endif %}
+</header>
+
 
     <div class="row g-3">
       {% for product in popular_products %}
       <div class="col-6 col-md-3">
         <a href="{% url 'product_detail' product.category.slug product.slug %}">
-        <div class="card h-100 card-product-grid">
-          <a href="{% url 'product_detail' product.category.slug product.slug %}" class="img-wrap">
-            {% if product.images %}
-              <img src="{{ product.images.url }}" class="card-img-top" alt="{{ product.product_name }}">
-            {% else %}
-              <img src="{% static 'images/default.png' %}" class="card-img-top" alt="No Image">
-            {% endif %}
-          </a>
-          <div class="card-body d-flex flex-column">
-    <a href="{% url 'product_detail' product.category.slug product.slug %}" class="card-title text-truncate mb-2">
-        {{ product.product_name }}
-    </a>
-    <div class="mt-auto fw-bold">{{ product.price|floatformat:0 }}₮</div>
+          <div class="card h-100 card-product-grid">
+            <div class="img-wrap">
+              {% if product.images %}
+                <img src="{{ product.images.url }}" class="card-img-top" alt="{{ product.product_name }}">
+              {% else %}
+                <img src="{% static 'images/default.png' %}" class="card-img-top" alt="No Image">
+              {% endif %}
+            </div>
+            <div class="card-body d-flex flex-column">
+              <a href="{% url 'product_detail' product.category.slug product.slug %}" class="card-title text-truncate mb-2">
+                {{ product.product_name }}
+              </a>
+              <div class="mt-auto fw-bold">{{ product.price|floatformat:0 }}₮</div>
 
-    {% if product.stock > 0 %}
-        <a href="{% url 'add_cart' product.id %}" class="btn btn-block btn-primary">Add to cart</a>
-    {% else %}
-        <button class="btn btn-block btn-secondary" disabled>Out of Stock</button>
-    {% endif %}
-</div>
-
-        </div>
+              {% if product.stock > 0 %}
+                <a href="{% url 'add_cart' product.id %}" class="btn btn-block btn-primary mt-2">Add to cart</a>
+              {% else %}
+                <button class="btn btn-block btn-secondary mt-2" disabled>Out of Stock</button>
+              {% endif %}
+            </div>
+          </div>
         </a>
       </div>
       {% endfor %}
@@ -94,42 +115,34 @@
   <ul class="pagination justify-content-center">
     {% if popular_products.has_previous %}
       <li class="page-item">
-        <a class="page-link" href="?page={{ popular_products.previous_page_number }}">Previous</a>
+        <a class="page-link" href="?page={{ popular_products.previous_page_number }}{% if request.GET.keyword %}&keyword={{ request.GET.keyword }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.size %}&size={{ request.GET.size }}{% endif %}{% if request.GET.min_price %}&min_price={{ request.GET.min_price }}{% endif %}{% if request.GET.max_price %}&max_price={{ request.GET.max_price }}{% endif %}">Previous</a>
       </li>
     {% else %}
-      <li class="page-item disabled">
-        <span class="page-link">Previous</span>
-      </li>
+      <li class="page-item disabled"><span class="page-link">Previous</span></li>
     {% endif %}
 
     {% for num in popular_products.paginator.page_range %}
       {% if popular_products.number == num %}
-        <li class="page-item active">
-          <span class="page-link">{{ num }}</span>
-        </li>
+        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
       {% else %}
         <li class="page-item">
-          <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+          <a class="page-link" href="?page={{ num }}{% if request.GET.keyword %}&keyword={{ request.GET.keyword }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.size %}&size={{ request.GET.size }}{% endif %}{% if request.GET.min_price %}&min_price={{ request.GET.min_price }}{% endif %}{% if request.GET.max_price %}&max_price={{ request.GET.max_price }}{% endif %}">{{ num }}</a>
         </li>
       {% endif %}
     {% endfor %}
 
-    
     {% if popular_products.has_next %}
       <li class="page-item">
-        <a class="page-link" href="?page={{ popular_products.next_page_number }}">Next</a>
+        <a class="page-link" href="?page={{ popular_products.next_page_number }}{% if request.GET.keyword %}&keyword={{ request.GET.keyword }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.size %}&size={{ request.GET.size }}{% endif %}{% if request.GET.min_price %}&min_price={{ request.GET.min_price }}{% endif %}{% if request.GET.max_price %}&max_price={{ request.GET.max_price }}{% endif %}">Next</a>
       </li>
     {% else %}
-      <li class="page-item disabled">
-        <span class="page-link">Next</span>
-      </li>
+      <li class="page-item disabled"><span class="page-link">Next</span></li>
     {% endif %}
-
   </ul>
 </nav>
 
-
   </main>
+  <!-- ==================== END MAIN ==================== -->
 
 </div>
 </div>
