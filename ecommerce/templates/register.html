@@ -1,12 +1,81 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Register - GreatKart{% endblock %}
+
 {% block content %}
-<div class="container mt-5" style="max-width: 500px;">
-    <h3 class="text-center mb-4">Бүртгүүлэх</h3>
-    {% include 'includes/alert.html' %}
-    <form method="POST" action="{% url 'user_register' %}">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-primary w-100 mt-2">Бүртгүүлэх</button>
-    </form>
-</div>
+
+<!-- ========================= SECTION CONTENT ========================= -->
+<section class="section-content padding-y">
+
+<!-- ============================ COMPONENT REGISTER   ================================= -->
+	<div class="card mx-auto" style="max-width:520px; margin-top:40px;">
+      <article class="card-body">
+		<header class="mb-4"><h4 class="card-title">Sign up</h4></header>
+		<form method="POST" enctype="multipart/form-data">
+			{% csrf_token %}
+			<div class="form-row">
+				<div class="col form-group">
+					{{ form.first_name }}
+					{% if form.first_name.errors %}
+						<div class="text-danger">{{ form.first_name.errors }}</div>
+					{% endif %}
+				</div> <!-- form-group end.// -->
+				<div class="col form-group">
+					{{ form.last_name }}
+					{% if form.last_name.errors %}
+						<div class="text-danger">{{ form.last_name.errors }}</div>
+					{% endif %}
+				</div> <!-- form-group end.// -->
+			</div> <!-- form-row end.// -->
+			<div class="form-group">
+				{{ form.email }}
+				{% if form.email.errors %}
+					<div class="text-danger">{{ form.email.errors }}</div>
+				{% endif %}
+				<small class="form-text text-muted">We'll never share your email with anyone else.</small>
+			</div> <!-- form-group end.// -->
+			<div class="form-group">
+				{{ account_form.phone_number }}
+				{% if account_form.phone_number.errors %}
+					<div class="text-danger">{{ account_form.phone_number.errors }}</div>
+				{% endif %}
+			</div>
+
+			<div class="form-group">
+				<label>Profile Image (Optional)</label>
+				{{ account_form.pro_image }}
+				{% if account_form.pro_image.errors %}
+					<div class="text-danger">{{ account_form.pro_image.errors }}</div>
+				{% endif %}
+			</div> <!-- form-group end.// -->
+			<div class="form-row">
+				<div class="form-group col-md-6">
+					{{ form.password }}
+					{% if form.password.errors %}
+						<div class="text-danger">{{ form.password.errors }}</div>
+					{% endif %}
+				</div> <!-- form-group end.// --> 
+				<div class="form-group col-md-6">
+					{{ form.repeat_password }}
+					{% if form.repeat_password.errors %}
+						<div class="text-danger">{{ form.repeat_password.errors }}</div>
+					{% endif %}
+				</div> <!-- form-group end.// -->  
+			</div>
+		    <div class="form-group">
+		        <button type="submit" class="btn btn-primary btn-block"> Register  </button>
+		    </div> <!-- form-group// -->      
+		        
+		</form>
+	</article><!-- card-body.// -->
+    </div> <!-- card .// -->
+    <p class="text-center mt-4">Have an account? <a href="{% url 'signin' %}">Log In</a></p>
+    <br><br>
+<!-- ============================ COMPONENT REGISTER  END.// ================================= -->
+
+
+</section>
+<!-- ========================= SECTION CONTENT END// ========================= -->
+
 {% endblock %}
+

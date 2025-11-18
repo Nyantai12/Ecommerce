@@ -1,48 +1,46 @@
-# forms.py
 from django import forms
-from django.contrib.auth.models import User
 from django.forms import ModelForm
+from django.contrib.auth.models import User
 from account_app.models import Account
-
-from django import forms
-from django.contrib.auth.models import User
-from django.forms import ModelForm
-
-from django import forms
-from django.contrib.auth.models import User
-from django.forms import ModelForm
 
 class RegisterForm(ModelForm):
     password = forms.CharField(widget=forms.PasswordInput(attrs={
-        'placeholder': 'Нууц үг оруулна уу',
-        'class': 'form-control'
+        'placeholder': 'Enter password',
     }))
     repeat_password = forms.CharField(widget=forms.PasswordInput(attrs={
-        'placeholder': 'Нууц үгээ давтан оруулна уу',
-        'class': 'form-control'
+        'placeholder': 'Repeat password'
     }))
 
-    class Meta:
+    class Meta():
         model = User
-        fields = ('email', 'first_name', 'last_name', 'password')
+        fields = ('email', 'first_name', 'last_name')
 
-    def clean(self):
-        cleaned_data = super().clean()
-        password = cleaned_data.get('password')
-        repeat_password = cleaned_data.get('repeat_password')
-        if password and repeat_password and password != repeat_password:
-            self.add_error('repeat_password', 'Нууц үг таарахгүй байна.')
-
-
+    def __init__(self, *args, **kwargs):
+        super(RegisterForm, self).__init__(*args, **kwargs)
+        self.fields['email'].widget.attrs['placeholder'] = "Enter Email"
+        self.fields['first_name'].widget.attrs['placeholder'] = "Enter FirstName"
+        self.fields['last_name'].widget.attrs['placeholder'] = "Enter LastName"
+        self.fields['password'].widget.attrs['class'] = 'form-control'
+        self.fields['repeat_password'].widget.attrs['class'] = 'form-control'
+        for field in self.fields:
+            if field not in ['password', 'repeat_password']:
+                self.fields[field].widget.attrs['class'] = 'form-control'
 
 class AccountsForm(ModelForm):
-    phone_number = forms.CharField(
+    phone_number = forms.IntegerField(
+        min_value=1,
         widget=forms.NumberInput(attrs={
-            'placeholder': 'Утасны дугаар оруулна уу',
-            'class': 'form-control'
+            'placeholder': 'Enter phone',
+            'class': 'form-control',
         })
     )
 
-    class Meta:
+    class Meta():
         model = Account
         fields = ('phone_number', 'pro_image')
+        
+    def __init__(self, *args, **kwargs):
+        super(AccountsForm, self).__init__(*args, **kwargs)
+        if 'pro_image' in self.fields:
+            self.fields['pro_image'].widget.attrs['class'] = 'form-control'
+
