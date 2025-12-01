@@ -4,6 +4,8 @@
 {% block title %}{{ product.product_name }} - GreatKart{% endblock %}
 
 {% block content %}
+
+
 <section class="section-content padding-y bg">
 <div class="container">
 
@@ -24,6 +26,28 @@
         <!-- Бүтээгдэхүүний мэдээлэл -->
         <main class="col-md-6 order-md-2 border-left p-3">
             <h2 class="title">{{ product.product_name }}</h2>
+            <!-- ⭐ Дундаж рейтинг -->
+            <div class="mb-2 d-flex align-items-center">
+                {% if average_rating > 0 %}
+                    <div class="rating">
+                        {% for i in "12345" %}
+                            {% if average_rating >= forloop.counter %}
+                                <i class="fa-solid fa-star text-warning"></i>
+                            {% elif average_rating >= forloop.counter0|add:"0.5" %}
+                                <i class="fa-solid fa-star-half-stroke text-warning"></i>
+                            {% else %}
+                                <i class="fa-regular fa-star text-warning"></i>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+
+                    <span class="text-muted ms-2">{{ average_rating }}/5 ({{ reviews.count }} reviews)</span>
+                {% else %}
+                    <span class="text-muted">No rating yet</span>
+                {% endif %}
+            </div>
+
+
             <div class="mb-3">
                 <var class="price h4">{{ product.price }}₮</var>
             </div>
@@ -91,26 +115,77 @@
             <h3>Customer Reviews</h3>  
         </header>
 
+        <!-- Review Form -->
+        <h4>Write a Review</h4>
+
+        {% if user.is_authenticated and can_review %}
+            <form action="{% url 'submit_review' product.id %}" method="POST">
+                {% csrf_token %}
+                <div class="form-group mb-2">
+                    <input type="text" name="subject" placeholder="Title" class="form-control" required>
+                </div>
+                <div class="form-group mb-2">
+                    <textarea name="review" placeholder="Your review" class="form-control" rows="4" required></textarea>
+                </div>
+                <div class="form-group mb-2">
+                    <label>Rating:</label>
+                    <select name="rating" class="form-control w-25" required>
+                        <option value="1">1 - Very Bad</option>
+                        <option value="2">2 - Bad</option>
+                        <option value="3">3 - Normal</option>
+                        <option value="4">4 - Good</option>
+                        <option value="5">5 - Excellent</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+        {% elif user.is_authenticated and not can_review %}
+            <p class="text-danger">Та энэ барааг худалдан авсны дараа review өгөх боломжтой.</p>
+        {% else %}
+            <p>Та review өгөхийн тулд нэвтэрнэ үү.</p>
+        {% endif %}
+
+        <hr>
+
+        <!-- Display Reviews -->
+        {% for review in reviews %}
         <article class="box mb-3">
-            <div class="icontext w-100">
-                <img src="{% static 'images/avatars/avatar1.jpg' %}" class="img-xs icon rounded-circle">
-                <div class="text">
-                    <span class="date text-muted float-md-right">24.04.2020</span>  
-                    <h6 class="mb-1">Mike John</h6>
+            <div class="icontext w-100 d-flex align-items-center">
+        
+            <img src="{% static 'images/avatars/default.jpg' %}" 
+                class="img-xs icon rounded-circle me-2" 
+                alt="Default profile">
+            <div class="text">
+                <span class="date text-muted float-md-right">{{ review.created_at|date:"d.m.Y" }}</span>
+                <h6 class="mb-1">{{ review.user.username }}</h6>
                 </div>
             </div>
-            <div class="mt-3">
-                <p>
-                    Dummy comment Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-                    tempor incididunt ut labore et dolore magna aliqua.
-                </p>    
+
+            <div class="mt-2">
+                <div class="rating mb-1">
+                <div class="rating">
+                    {% for i in "12345" %}
+                        {% if forloop.counter <= review.rating %}
+                            <i class="fa-solid fa-star text-warning"></i>
+                        {% else %}
+                            <i class="fa-regular fa-star text-warning"></i>
+                        {% endif %}
+                    {% endfor %}
+                </div>
             </div>
+
+            <h6>{{ review.subject }}</h6>
+            <p>{{ review.review }}</p>
+
         </article>
+        {% empty %}
+            <p>No reviews yet.</p>
+        {% endfor %}
+
     </div>
 </div>
 
 </div>
 </section>
-
 
 {% endblock %}

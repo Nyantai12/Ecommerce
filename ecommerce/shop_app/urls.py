@@ -10,6 +10,7 @@ urlpatterns = [
     path('ordercomp/', views.ordercomp, name='ordercomp'),
     path('store/<slug:slug>/', views.category_products, name='category_products'),
     path('search/', views.search, name='search'),
+    path('product/<int:product_id>/review/', views.submit_review, name='submit_review'),
 
     
 ]
