@@ -93,10 +93,11 @@
                             </a>
                         </div>
                     {% else %}
-                        <button id="addToCartBtn" data-product="{{ product.id }}" class="btn btn-primary btn-block">
-                            <span class="text">Add to cart</span>
-                            <i class="fas fa-shopping-cart"></i>
-                        </button>
+                        {% if product.stock > 0 %}
+                            <a href="{% url 'add_cart' product.id %}" class="btn btn-block btn-primary mt-2">Add to cart</a>
+                        {% else %}
+                            <button class="btn btn-block btn-secondary mt-2" disabled>Out of Stock</button>
+                        {% endif %}
                     {% endif %}
                 </div>
             {% endif %}

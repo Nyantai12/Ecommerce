@@ -11,7 +11,7 @@ from cart_app.views import _cart_id
 from shop_app.forms import ReviewForm
 from django.db.models import Avg
 
-from .models import Category, Order, OrderProduct, Product, ReviewRating  # <- Үүнийг заавал нэмнэ
+from .models import Category, ImageGallery, Order, OrderProduct, Product, ReviewRating  # <- Үүнийг заавал нэмнэ
 import sqlite3 as sql
 
 # def index(request):
@@ -45,6 +45,7 @@ def product_detail(request, cat_slug, pro_slug):
     product = get_object_or_404(Product, category__slug=cat_slug, slug=pro_slug)
     reviews = ReviewRating.objects.filter(product=product, status=True)
     average_rating = reviews.aggregate(avg_rating=Avg('rating'))['avg_rating'] or 0
+    product_images = ImageGallery.objects.filter(product=product)
 
     can_review = False
     if request.user.is_authenticated:
@@ -53,8 +54,9 @@ def product_detail(request, cat_slug, pro_slug):
     context = {
         'product': product,
         'reviews': reviews,
-        'average_rating': round(average_rating, 1),  # 4.3 гэх мэт
-        'can_review': can_review
+        'average_rating': round(average_rating, 1),  
+        'can_review': can_review,
+        'product_images': product_images,
     }
     return render(request, 'product-detail.html', context)
 
@@ -63,7 +65,6 @@ def product_detail(request, cat_slug, pro_slug):
 def submit_review(request, product_id):
     url = request.META.get('HTTP_REFERER')
     product = get_object_or_404(Product, id=product_id)
-    
     if not has_purchased(request.user, product):
         messages.error(request, "Та зөвхөн худалдан авсан бараандаа review өгнө.")
         return redirect(url)
@@ -81,7 +82,6 @@ def submit_review(request, product_id):
             data.product = product
             data.save()
             messages.success(request, "Таны review амжилттай хадгалагдлаа.")
-
     return redirect(url)
 
 
@@ -178,8 +178,7 @@ def place_order(request):
     cart_items = CartItem.objects.filter(cart__cart_id=_cart_id(request))
     
     for item in cart_items:
-        item.subtotal = item.product.price * item.quantity  # subtotal нэмж байна
-    
+        item.subtotal = item.product.price * item.quantity 
     total = sum(item.subtotal for item in cart_items)
     tax = total * 0.1
     grand_total = total + tax
