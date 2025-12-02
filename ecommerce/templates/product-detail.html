@@ -14,14 +14,42 @@
     <div class="row no-gutters">
         <!-- Зураг -->
         <aside class="col-md-6 order-md-1 text-center">
-            <div class="img-big-wrap" style="width:100%;max-width:500px;height:500px;display:inline-block;">
-                {% if product.images %}
-                    <img src="{{ product.images.url }}" alt="{{ product.product_name }}" class="img-fluid" style="height:100%;object-fit:contain;">
-                {% else %}
-                    <img src="{% static 'images/default.png' %}" alt="No Image" class="img-fluid" style="height:100%;object-fit:contain;">
-                {% endif %}
-            </div>
-        </aside>
+    <div class="img-big-wrap" style="width:100%;max-width:500px;height:500px;display:inline-block;">
+
+        <!-- MAIN IMAGE -->
+        <img id="mainImage"
+             src="{% if product.images %}{{ product.images.url }}{% else %}{% static 'images/default.png' %}{% endif %}"
+             alt="{{ product.product_name }}"
+             class="img-fluid"
+             style="height:100%;object-fit:contain; display:block; margin-bottom:10px;">
+
+        <!-- THUMBNAILS -->
+        <div class="thumbs d-flex gap-2 justify-content-center">
+
+            <!-- Main image thumbnail -->
+            {% if product.images %}
+            <img src="{{ product.images.url }}"
+                 class="thumb-img"
+                 style="width:70px; height:70px; object-fit:cover; cursor:pointer; border-radius:4px; border:2px solid #ddd;"
+                 onclick="changeMainImage('{{ product.images.url }}')">
+            {% endif %}
+
+            <!-- Product images thumbnails -->
+            {% for img in product_images %}
+            <img src="{{ img.image.url }}"
+                 class="thumb-img"
+                 style="width:70px; height:70px; object-fit:cover; cursor:pointer; border-radius:4px; border:2px solid #ddd;"
+                 onclick="changeMainImage('{{ img.image.url }}')">
+            {% endfor %}
+
+        </div>
+
+    </div>
+</aside>
+
+
+
+
 
         <!-- Бүтээгдэхүүний мэдээлэл -->
         <main class="col-md-6 order-md-2 border-left p-3">
@@ -188,5 +216,10 @@
 
 </div>
 </section>
+<script>
+function changeMainImage(src) {
+    document.getElementById('mainImage').src = src;
+}
+</script>
 
 {% endblock %}
