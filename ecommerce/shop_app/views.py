@@ -11,7 +11,7 @@ from cart_app.views import _cart_id
 from shop_app.forms import ReviewForm
 from django.db.models import Avg
 
-from .models import Category, ImageGallery, Order, OrderProduct, Product, ReviewRating  # <- Үүнийг заавал нэмнэ
+from .models import Category, ImageGallery, Product, ReviewRating, ReviewReaction  # <- Үүнийг заавал нэмнэ
 import sqlite3 as sql
 
 # def index(request):
@@ -35,54 +35,77 @@ def index(request):
 
 
 
-def has_purchased(user, product):
-    return OrderProduct.objects.filter(user=user, product=product).exists()
 
+
+
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
+from django.db.models import Avg
 
 
 
 def product_detail(request, cat_slug, pro_slug):
     product = get_object_or_404(Product, category__slug=cat_slug, slug=pro_slug)
-    reviews = ReviewRating.objects.filter(product=product, status=True)
-    average_rating = reviews.aggregate(avg_rating=Avg('rating'))['avg_rating'] or 0
-    product_images = ImageGallery.objects.filter(product=product)
+    reviews = ReviewRating.objects.filter(product=product, )
+    average_rating = reviews.aggregate(Avg('rating'))['rating__avg'] or 0
 
     can_review = False
     if request.user.is_authenticated:
-        can_review = OrderProduct.objects.filter(user=request.user, product=product).exists()
+        exists = ReviewRating.objects.filter(user=request.user, product=product).exists()
+        if not exists:
+            can_review = True
 
     context = {
         'product': product,
         'reviews': reviews,
-        'average_rating': round(average_rating, 1),  
+        'average_rating': round(average_rating, 1),
+        'product_images': ImageGallery.objects.filter(product=product),
         'can_review': can_review,
-        'product_images': product_images,
     }
     return render(request, 'product-detail.html', context)
 
 
 
+
 def submit_review(request, product_id):
-    url = request.META.get('HTTP_REFERER')
     product = get_object_or_404(Product, id=product_id)
-    if not has_purchased(request.user, product):
-        messages.error(request, "Та зөвхөн худалдан авсан бараандаа review өгнө.")
-        return redirect(url)
-    try:
-        review = ReviewRating.objects.get(user=request.user, product=product)
-        form = ReviewForm(request.POST, instance=review)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Review амжилттай шинэчлэгдлээ.")
-    except ReviewRating.DoesNotExist:
-        form = ReviewForm(request.POST)
-        if form.is_valid():
-            data = form.save(commit=False)
-            data.user = request.user
-            data.product = product
-            data.save()
-            messages.success(request, "Таны review амжилттай хадгалагдлаа.")
+    url = request.META.get('HTTP_REFERER')
+    review_qs = ReviewRating.objects.filter(user=request.user, product=product)
+    if review_qs.exists():
+        review = review_qs.first()
+    else:
+        review = ReviewRating(user=request.user, product=product)
+    form = ReviewForm(request.POST, instance=review)
+    if form.is_valid():
+        form.save()
+        messages.success(request, "Таны review амжилттай илгээгдлээ.")
+    else:
+        messages.error(request, "Алдаа: rating эсвэл review талбар дутуу байна.")
+
     return redirect(url)
+
+
+
+
+
+def review_react(request, review_id, action):
+    if not request.user.is_authenticated:
+        return redirect('signin') 
+    review = get_object_or_404(ReviewRating, id=review_id)
+    reaction_value = 1 if action == "like" else -1
+    existing = ReviewReaction.objects.filter(review=review, user=request.user).first()
+    if existing:
+        if existing.reaction == reaction_value:
+            existing.delete()  
+        else:
+            existing.reaction = reaction_value
+            existing.save()
+    else:
+        ReviewReaction.objects.create(review=review, user=request.user, reaction=reaction_value)
+    return redirect(request.META.get('HTTP_REFERER', '/'))
+    
+
+
 
 
 
@@ -175,63 +198,10 @@ def register(request):
 
 
 def place_order(request):
-    cart_items = CartItem.objects.filter(cart__cart_id=_cart_id(request))
-    
-    for item in cart_items:
-        item.subtotal = item.product.price * item.quantity 
-    total = sum(item.subtotal for item in cart_items)
-    tax = total * 0.1
-    grand_total = total + tax
-    
-    context = {
-        'cart_items': cart_items,
-        'total': total,
-        'tax': tax,
-        'grand_total': grand_total
-    }
-    return render(request, 'place.html', context)
-
-
-
+    return render(request, 'place.html', )
 
 def ordercomp(request):
-    if request.method != 'POST':
-        return redirect('cart')
-
-    user = request.user
-    cart_items = CartItem.objects.filter(cart__cart_id=_cart_id(request))
-
-    if not cart_items.exists():
-        return redirect('store')
-
-    order = Order.objects.create(user=user, is_ordered=True)
-    order_products = []
-
-    total = 0
-    for item in cart_items:
-        op = OrderProduct.objects.create(
-            order=order,
-            user=user,
-            product=item.product,
-            quantity=item.quantity,
-            ordered=True
-        )
-        total += item.quantity * item.product.price
-        order_products.append(op)
-
-    tax = total * 0.1
-    grand_total = total + tax
-
-    cart_items.delete()
-
-    context = {
-        'order': order,
-        'order_products': order_products,
-        'total': total,
-        'tax': tax,
-        'grand_total': grand_total,
-    }
-    return render(request, 'order_complete.html', context)
+    return render(request, 'order_complete.html', )
 
 def add_to_cart(request, ):
     return render(request, 'cart.html')

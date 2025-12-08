@@ -11,6 +11,8 @@ urlpatterns = [
     path('store/<slug:slug>/', views.category_products, name='category_products'),
     path('search/', views.search, name='search'),
     path('product/<int:product_id>/review/', views.submit_review, name='submit_review'),
+    path('review/<int:review_id>/<str:action>/', views.review_react, name="review_react"),
+
 
     
 ]

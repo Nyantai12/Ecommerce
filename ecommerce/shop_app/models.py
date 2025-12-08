@@ -39,18 +39,6 @@ class Product(models.Model):
     def get_url(self):
         return reverse('product_detail', args=[self.category.slug, self.slug])
 
-class Order(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    is_ordered = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-
-class OrderProduct(models.Model):
-    order = models.ForeignKey(Order, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    quantity = models.IntegerField()
-    ordered = models.BooleanField(default=False)
 
 
 class ReviewRating(models.Model):
@@ -59,17 +47,38 @@ class ReviewRating(models.Model):
     subject = models.CharField(max_length=100, blank=True)
     review = models.TextField(max_length=500, blank=True)
     rating = models.FloatField()
-    ip = models.CharField(max_length=20, blank=True)
-    status = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.subject
+    
+
+    @property
+    def likes(self):
+        return self.reactions.filter(reaction=1).count()
+
+    @property
+    def dislikes(self):
+        return self.reactions.filter(reaction=-1).count()
+
 
 class ImageGallery(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     image = models.ImageField(upload_to='photos/products/', blank=True)
     def __str__(self):
         return self.product.product_name
+
+
+
+class ReviewReaction(models.Model):
+    review = models.ForeignKey(ReviewRating, on_delete=models.CASCADE, related_name='reactions')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    reaction = models.IntegerField(choices=[(1, "Like"), (-1, "Dislike")])
+    class Meta:
+        unique_together = ('review', 'user')
+
+
+
+
 
        
