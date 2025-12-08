@@ -207,3 +207,42 @@ def add_to_cart(request, ):
     return render(request, 'cart.html')
 def password_reset_view(request):
     return render(request, 'password_reset.html')
+
+
+
+
+
+# products/views.py
+
+# 1.ImageGalery → буруу бичигдсэн.
+
+# 2.pro_slg → тайлбаргүй, тодорхойгүй, жишиг нэршил зөрчсөн.
+# ✔ Зөв нэр: pro_slug
+
+# 3. slg гэдэг field байхгүй.
+# ✔ Зөв: slug=pro_slug
+
+# 4. .object → Django-д байхгүй.
+# ✔ Зөв: .objects
+
+# 5. rate — model дээр байхгүй бол буруу
+# 'rating__avg' — aggregate нэртэй таарахгүй
+# "0" — 0-г string болгосон → дараа нь round() дээр алдаа унах магадлалтай.
+# ✔ Зөв field: 'rating'
+# ✔ Зөв default: 0
+
+# 6. Flase → Python-д байхгүй keyword.
+# ✔ Зөв: False
+
+# 7. : bhgvi ajillahgvi
+
+# 8. prod → байхгүй field
+# exist() → байхгүй function (зөв: .exists())
+
+# 9.  1 → integer
+# Python boolean биш.
+# ✔ Зөв: True
+
+
+# 10. productt → буруу нэр.
+# ✔ Зөв: product
