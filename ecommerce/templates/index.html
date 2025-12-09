@@ -30,18 +30,48 @@
     {% for product in popular_products %}
     <div class="col-md-3">
         <div class="card card-product-grid">
-            <a href="{{ product.get_url }}" class="img-wrap">
-                {% if product.images %}
-                    <img src="{{ product.images.url }}" alt="{{ product.product_name }}">
+    <a href="{{ product.get_url }}" class="img-wrap">
+        {% if product.images %}
+            <img src="{{ product.images.url }}" alt="{{ product.product_name }}">
+        {% else %}
+            <img src="{% static 'images/default.png' %}" alt="No Image">
+        {% endif %}
+    </a>
+    <figcaption class="info-wrap">
+        <a href="{{ product.get_url }}" class="title">{{ product.product_name }}</a>
+
+        <!-- Rating block -->
+        <div class="rating mb-1">
+                {% if product.average_rating %}
+                    {% for i in "12345" %}
+                        {% with star_num=forloop.counter0 %}
+                            {% if product.average_rating >= star_num|add:"1" %}
+                                <i class="fa-solid fa-star text-warning"></i>
+                            {% elif product.average_rating > star_num and product.average_rating < star_num|add:"1" %}
+                                <i class="fa-solid fa-star-half-stroke text-warning"></i>
+                            {# ҮЛДСЭН НЬ ХООСОН ОД #}
+                            {% else %}
+                                <i class="fa-regular fa-star text-warning"></i>
+                            {% endif %}
+
+                        {% endwith %}
+                    {% endfor %}
+
+                    <span class="text-muted ms-2 align-middle">
+                        {{ product.average_rating|floatformat:1 }}/5
+                        {% if product.review_count %}
+                            ({{ product.review_count }} сэтгэгдэл)
+                        {% endif %}
+                    </span>
                 {% else %}
-                    <img src="{% static 'images/default.png' %}" alt="No Image">
+                    <span class="text-muted">Одоогоор үнэлгээ байхгүй</span>
                 {% endif %}
-            </a>
-            <figcaption class="info-wrap">
-                <a href="{{ product.get_url }}" class="title">{{ product.product_name }}</a>
-                <div class="price mt-1">{{ product.price }}₮</div>
-            </figcaption>
-        </div>
+            </div>
+
+        <div class="price mt-1">{{ product.price }}₮</div>
+    </figcaption>
+</div>
+
     </div>
     {% endfor %}
 </div>

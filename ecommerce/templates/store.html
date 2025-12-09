@@ -97,6 +97,34 @@
                 {{ product.product_name }}
               </a>
               <div class="mt-auto fw-bold">{{ product.price|floatformat:0 }}₮</div>
+              <div class="rating mb-1">
+                {% if product.average_rating %}
+                      {% for i in "12345" %}
+                          {% with star_num=forloop.counter0 %}
+                              {% if product.average_rating >= star_num|add:"1" %}
+                                  <i class="fa-solid fa-star text-warning"></i>
+                              {% elif product.average_rating > star_num and product.average_rating < star_num|add:"1" %}
+                                  <i class="fa-solid fa-star-half-stroke text-warning"></i>
+                              {% else %}
+                                  <i class="fa-regular fa-star text-warning"></i>
+                              {% endif %}
+
+                          {% endwith %}
+                      {% endfor %}
+
+                    <span class="text-muted ms-2 align-middle">
+                        {{ product.average_rating|floatformat:1 }}/5
+                        {% if product.review_count %}
+                            ({{ product.review_count }} сэтгэгдэл)
+                        {% endif %}
+                    </span>
+                {% else %}
+                    <span class="text-muted">Одоогоор үнэлгээ байхгүй</span>
+                {% endif %}
+            </div>
+
+
+
 
               {% if product.stock > 0 %}
                 <a href="{% url 'add_cart' product.id %}" class="btn btn-block btn-primary mt-2">Add to cart</a>
@@ -106,6 +134,7 @@
             </div>
           </div>
         </a>
+        
       </div>
       {% endfor %}
     </div>

@@ -11,6 +11,9 @@ from cart_app.views import _cart_id
 from shop_app.forms import ReviewForm
 from django.db.models import Avg
 
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
+from django.db.models import Avg
 from .models import Category, ImageGallery, Product, ReviewRating, ReviewReaction  # <- Үүнийг заавал нэмнэ
 import sqlite3 as sql
 
@@ -22,11 +25,14 @@ import sqlite3 as sql
     #     'popular_products': popular_products
     # }
     # return render(request, 'index.html', context)
-
-def index(request):
-    categories = Category.objects.raw("SELECT * FROM category")
-    popular_products = Product.objects.raw("SELECT * FROM product ORDER BY id DESC LIMIT 8")
     
+def index(request):
+    categories = Category.objects.all()
+
+    popular_products = Product.objects.all() \
+        .annotate(average_rating=Avg('reviewrating__rating')) \
+        .order_by('-id')[:8]
+
     context = {
         'categories': categories,
         'popular_products': popular_products
@@ -36,11 +42,6 @@ def index(request):
 
 
 
-
-
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib import messages
-from django.db.models import Avg
 
 
 
@@ -143,15 +144,22 @@ def cart_view(request):
 
 
 def store(request):
-    products = Product.objects.all()
+    products = Product.objects.all().annotate(
+        average_rating=Avg('reviewrating__rating')
+    )
+
     categories = Category.objects.all()
+
     category_ids = request.GET.getlist('category')
     min_price = request.GET.get('min_price')
     max_price = request.GET.get('max_price')
+
     if category_ids:
         products = products.filter(category__id__in=category_ids)
+
     if min_price:
         products = products.filter(price__gte=min_price)
+
     if max_price:
         products = products.filter(price__lte=max_price)
 
@@ -210,39 +218,3 @@ def password_reset_view(request):
 
 
 
-
-
-# products/views.py
-
-# 1.ImageGalery → буруу бичигдсэн.
-
-# 2.pro_slg → тайлбаргүй, тодорхойгүй, жишиг нэршил зөрчсөн.
-# ✔ Зөв нэр: pro_slug
-
-# 3. slg гэдэг field байхгүй.
-# ✔ Зөв: slug=pro_slug
-
-# 4. .object → Django-д байхгүй.
-# ✔ Зөв: .objects
-
-# 5. rate — model дээр байхгүй бол буруу
-# 'rating__avg' — aggregate нэртэй таарахгүй
-# "0" — 0-г string болгосон → дараа нь round() дээр алдаа унах магадлалтай.
-# ✔ Зөв field: 'rating'
-# ✔ Зөв default: 0
-
-# 6. Flase → Python-д байхгүй keyword.
-# ✔ Зөв: False
-
-# 7. : bhgvi ajillahgvi
-
-# 8. prod → байхгүй field
-# exist() → байхгүй function (зөв: .exists())
-
-# 9.  1 → integer
-# Python boolean биш.
-# ✔ Зөв: True
-
-
-# 10. productt → буруу нэр.
-# ✔ Зөв: product

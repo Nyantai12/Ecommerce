@@ -56,24 +56,34 @@
             <h2 class="title">{{ product.product_name }}</h2>
             <!-- ⭐ Дундаж рейтинг -->
             <div class="mb-2 d-flex align-items-center">
-                {% if average_rating > 0 %}
-                    <div class="rating">
-                        {% for i in "12345" %}
-                            {% if average_rating >= forloop.counter %}
-                                <i class="fa-solid fa-star text-warning"></i>
-                            {% elif average_rating >= forloop.counter0|add:"0.5" %}
-                                <i class="fa-solid fa-star-half-stroke text-warning"></i>
-                            {% else %}
-                                <i class="fa-regular fa-star text-warning"></i>
-                            {% endif %}
-                        {% endfor %}
-                    </div>
+    {% if average_rating > 0 %}
+        <div class="rating">
+            {% for i in "12345" %}
+                {% with current=forloop.counter0 next=forloop.counter %}
+                    
+                    {# 1. БҮТЭН ОД - rating >= i (1,2,3,4,5) #}
+                    {% if average_rating >= next %}
+                        <i class="fa-solid fa-star text-warning"></i>
 
-                    <span class="text-muted ms-2">{{ average_rating }}/5 ({{ reviews.count }} reviews)</span>
-                {% else %}
-                    <span class="text-muted">No rating yet</span>
-                {% endif %}
-            </div>
+                    {# 2. ХАГАС ОД - rating нь i < rating < i+1 үед #}
+                    {% elif average_rating > current and average_rating < next %}
+                        <i class="fa-solid fa-star-half-stroke text-warning"></i>
+
+                    {# 3. ҮЛДСЭН - ХООСОН ОД #}
+                    {% else %}
+                        <i class="fa-regular fa-star text-warning"></i>
+                    {% endif %}
+
+                {% endwith %}
+            {% endfor %}
+        </div>
+
+        <span class="text-muted ms-2">{{ average_rating }}/5 ({{ reviews.count }} reviews)</span>
+    {% else %}
+        <span class="text-muted">No rating yet</span>
+    {% endif %}
+</div>
+
 
 
             <div class="mb-3">
